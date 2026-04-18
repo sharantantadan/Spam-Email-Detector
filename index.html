@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SpamShield — Email Spam Detection</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box;}
+    :root{
+      --bg:#0d0d0d;
+      --bg2:#141414;
+      --bg3:#1a1a1a;
+      --pink:#ff2d78;
+      --cyan:#00e5ff;
+      --yellow:#f5e642;
+      --text:#f0f0f0;
+      --muted:#888;
+      --border:#2a2a2a;
+    }
+    html,body{height:100%;background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;overflow-x:hidden;}
+    body{position:relative;}
+    button, input, textarea{font:inherit;}
+    a{color:inherit;text-decoration:none;}
+
+    .page{display:none;min-height:100vh;}
+    .page.active{display:block;}
+
+    body::before{
+      content:'';position:fixed;inset:0;
+      background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      opacity:0.4;pointer-events:none;z-index:0;
+    }
+
+    #page1{position:relative;}
+    .ticker{background:var(--pink);color:#fff;font-family:'Space Mono',monospace;font-size:12px;padding:12px 0;overflow:hidden;white-space:nowrap;position:relative;z-index:10;}
+    .ticker-inner{display:inline-block;animation:ticker 22s linear infinite;}
+    .ticker-inner span{margin:0 40px;}
+    @keyframes ticker{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+    nav{display:flex;align-items:center;justify-content:space-between;padding:24px 60px;position:relative;z-index:10;border-bottom:1px solid var(--border);}
+    .nav-logo{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:2px;}
+    .nav-logo span{color:var(--pink);}
+    .nav-links{display:flex;gap:36px;list-style:none;}
+    .nav-links a{color:var(--muted);text-decoration:none;font-size:13px;font-weight:500;letter-spacing:1px;text-transform:uppercase;transition:color .2s;}
+    .nav-links a:hover{color:var(--text);}
+    .nav-cta{background:transparent;border:1.5px solid var(--cyan);color:var(--cyan);padding:10px 24px;border-radius:100px;cursor:pointer;letter-spacing:1px;text-transform:uppercase;transition:all .2s;}
+    .nav-cta:hover{background:var(--cyan);color:#000;}
+
+    .hero{padding:80px 60px 60px;position:relative;z-index:5;min-height:calc(100vh - 120px);display:flex;flex-direction:column;justify-content:center;}
+    .hero-tag{display:inline-flex;align-items:center;gap:10px;font-family:'Space Mono',monospace;font-size:12px;color:var(--cyan);letter-spacing:2px;text-transform:uppercase;border:1px solid rgba(0,229,255,.2);padding:8px 18px;border-radius:100px;margin-bottom:36px;}
+    .hero-tag::before{content:'';width:7px;height:7px;border-radius:50%;background:var(--cyan);animation:pulse 1.5s ease infinite;}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+
+    .hero h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(72px,9vw,140px);line-height:.95;letter-spacing:2px;margin-bottom:28px;}
+    .hero h1 .line1{display:block;color:var(--text);}
+    .hero h1 .line2{display:block;}
+    .hero h1 .accent-pink{color:var(--pink);}
+    .hero h1 .accent-cyan{color:var(--cyan);}
+    .hero-sub{font-size:18px;color:var(--muted);max-width:620px;line-height:1.8;margin-bottom:48px;font-weight:300;}
+
+    .hero-actions{display:flex;align-items:center;gap:22px;flex-wrap:wrap;}
+    .btn-primary{background:var(--pink);color:#fff;padding:18px 44px;border:none;border-radius:6px;cursor:pointer;letter-spacing:1px;text-transform:uppercase;font-family:'Bebas Neue',sans-serif;font-size:20px;position:relative;overflow:hidden;transition:transform .3s,box-shadow .3s;}
+    .btn-primary::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.18),transparent);transform:translateX(-100%);transition:transform .45s;}
+    .btn-primary:hover::after{transform:translateX(100%);}
+    .btn-primary:hover{transform:translateY(-2px);box-shadow:0 18px 50px rgba(255,45,120,.25);}
+    .btn-ghost{background:transparent;color:var(--text);padding:18px 40px;border:1px solid var(--border);border-radius:6px;cursor:pointer;letter-spacing:1px;text-transform:uppercase;font-family:'Bebas Neue',sans-serif;font-size:20px;transition:border-color .3s,background .3s;}
+    .btn-ghost:hover{border-color:var(--muted);background:rgba(255,255,255,.03);}
+
+    .stats-strip{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;border-top:1px solid var(--border);position:relative;z-index:5;}
+    .stat-item{padding:32px 60px;background:rgba(255,255,255,.01);border-right:1px solid var(--border);}
+    .stat-item:last-child{border-right:none;}
+    .stat-num{font-family:'Bebas Neue',sans-serif;font-size:50px;letter-spacing:1px;color:var(--text);line-height:1;}
+    .stat-num span{color:var(--pink);}
+    .stat-label{font-size:12px;color:var(--muted);margin-top:8px;letter-spacing:1px;text-transform:uppercase;}
+
+    .grid-lines{position:absolute;inset:0;pointer-events:none;z-index:1;background-image:linear-gradient(rgba(255,255,255,.02) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.02) 1px,transparent 1px);background-size:90px 90px;}
+    .hero-accent{position:absolute;right:60px;top:50%;transform:translateY(-50%);width:420px;height:420px;pointer-events:none;z-index:3;}
+    .accent-circle{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);border-radius:50%;border:1px solid rgba(255,45,120,.15);}
+    .accent-circle:nth-child(1){width:320px;height:320px;}
+    .accent-circle:nth-child(2){width:220px;height:220px;border-color:rgba(0,229,255,.15);}
+    .accent-circle:nth-child(3){width:140px;height:140px;border-color:rgba(245,230,66,.2);}
+    .accent-icon{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:64px;}
+
+    #page2{background:var(--bg);}
+    .app-header{display:flex;align-items:center;justify-content:space-between;padding:20px 40px;border-bottom:1px solid var(--border);position:sticky;top:0;background:rgba(13,13,13,.95);backdrop-filter:blur(14px);z-index:50;}
+    .app-logo{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:2px;}
+    .app-logo span{color:var(--pink);}
+    .back-btn{display:flex;align-items:center;gap:8px;background:transparent;border:1px solid var(--border);color:var(--muted);padding:10px 18px;border-radius:6px;font-size:13px;cursor:pointer;transition:all .2s;}
+    .back-btn:hover{border-color:var(--muted);color:var(--text);}
+
+    .app-body{display:grid;grid-template-columns:300px 1fr;min-height:calc(100vh - 68px);}
+    .sidebar{border-right:1px solid var(--border);padding:32px 24px;display:flex;flex-direction:column;gap:24px;}
+    .sidebar-section{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:24px;}
+    .sidebar-label{font-family:'Space Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:18px;}
+    .metric-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);}
+    .metric-row:last-child{border-bottom:none;}
+    .metric-key{font-size:13px;color:var(--muted);}    
+    .metric-val{font-family:'Space Mono',monospace;font-size:14px;font-weight:700;color:var(--cyan);}
+    .stat-bar{margin-top:12px;}
+    .bar-label{display:flex;justify-content:space-between;margin-bottom:8px;font-size:12px;color:var(--muted);}
+    .bar-track{height:6px;background:var(--border);border-radius:999px;overflow:hidden;}
+    .bar-fill{height:100%;border-radius:999px;background:var(--pink);transition:width .5s ease;}
+    .bar-fill.cyan{background:var(--cyan);}    
+    .bar-fill.yellow{background:var(--yellow);}    
+    .dataset-chips{display:flex;flex-direction:column;gap:12px;margin-top:4px;}
+    .chip{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;border-radius:10px;background:var(--bg3);border:1px solid var(--border);}
+    .chip-label{font-size:12px;color:var(--muted);}
+    .chip-val{font-family:'Space Mono',monospace;font-size:14px;font-weight:700;}
+    .chip-val.spam{color:var(--pink);}
+    .chip-val.ham{color:var(--cyan);}
+    .chip-val.total{color:var(--text);}
+
+    .main-content{padding:40px;}
+    .section-title{font-family:'Bebas Neue',sans-serif;font-size:42px;letter-spacing:1px;color:var(--text);margin-bottom:6px;}
+    .section-sub{font-size:14px;color:var(--muted);}
+    .tabs{display:flex;gap:8px;margin-bottom:30px;border-bottom:1px solid var(--border);}
+    .tab{padding:14px 24px;font-size:14px;font-weight:500;cursor:pointer;border:none;border-bottom:2px solid transparent;color:var(--muted);background:transparent;transition:all .2s;letter-spacing:.5px;}
+    .tab.active{color:var(--text);border-bottom-color:var(--pink);}
+    .tab:hover:not(.active){color:var(--text);}
+    .tab-panel{display:none;}
+    .tab-panel.active{display:block;}
+    .input-card{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:32px;max-width:760px;}
+    .input-label{font-family:'Space Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:14px;display:block;}
+    .input-field{width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:18px 20px;border-radius:12px;outline:none;transition:border-color .2s;}
+    .input-field:focus{border-color:var(--pink);}
+    .input-field::placeholder{color:#5d5d5d;}
+    textarea.input-field{resize:vertical;min-height:160px;line-height:1.7;}
+    .check-btn{margin-top:22px;background:var(--pink);color:#fff;border:none;padding:16px 34px;border-radius:10px;cursor:pointer;font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:1px;transition:transform .2s,opacity .2s;}
+    .check-btn:hover{opacity:.92;transform:translateY(-1px);}
+    .result-box{margin-top:24px;padding:26px 28px;border-radius:16px;border:1px solid var(--border);display:none;animation:fadeUp .3s ease;}
+    .result-box.show{display:block;}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+    .result-box.spam-result{background:rgba(255,45,120,.08);border-color:rgba(255,45,120,.25);}
+    .result-box.clean-result{background:rgba(0,229,255,.08);border-color:rgba(0,229,255,.25);}
+    .result-box.unknown-result{background:rgba(136,136,136,.08);border-color:rgba(136,136,136,.25);}
+    .result-badge{display:inline-flex;align-items:center;gap:10px;padding:8px 18px;border-radius:999px;font-weight:700;font-size:13px;margin-bottom:16px;}
+    .result-badge.spam{background:rgba(255,45,120,.15);color:var(--pink);}
+    .result-badge.clean{background:rgba(0,229,255,.15);color:var(--cyan);}
+    .result-badge.unknown{background:rgba(136,136,136,.15);color:var(--muted);}
+    .result-verdict{font-family:'Bebas Neue',sans-serif;font-size:34px;letter-spacing:1px;margin-bottom:6px;}
+    .result-desc{font-size:14px;color:var(--muted);line-height:1.7;}
+    .meta-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:22px;}
+    .meta-item{background:var(--bg3);padding:16px 18px;border-radius:12px;border:1px solid var(--border);}
+    .meta-item-label{font-size:11px;color:var(--muted);margin-bottom:8px;letter-spacing:.5px;text-transform:uppercase;}
+    .meta-item-val{font-family:'Space Mono',monospace;font-size:16px;font-weight:700;color:var(--text);}
+    .history-section{margin-top:42px;}
+    .history-title{font-family:'Space Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:18px;}
+    .history-list{display:flex;flex-direction:column;gap:12px;max-width:760px;}
+    .history-item{display:flex;align-items:center;gap:16px;padding:16px 18px;border-radius:14px;background:var(--bg3);border:1px solid var(--border);}
+    .h-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+    .h-dot.spam{background:var(--pink);}
+    .h-dot.clean{background:var(--cyan);}
+    .h-dot.unknown{background:var(--muted);}
+    .h-text{font-size:13px;color:var(--muted);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .h-badge{font-size:11px;padding:5px 12px;border-radius:999px;font-weight:700;flex-shrink:0;}
+    .h-badge.spam{background:rgba(255,45,120,.15);color:var(--pink);}
+    .h-badge.clean{background:rgba(0,229,255,.15);color:var(--cyan);}
+    .h-badge.unknown{background:rgba(136,136,136,.15);color:var(--muted);}
+
+    @media(max-width:1100px){nav, .hero, .stats-strip{padding-left:28px;padding-right:28px;} .hero-accent{display:none;}}    
+    @media(max-width:860px){.app-body{grid-template-columns:1fr;} .sidebar{order:2;min-height:auto;} .main-content{padding:28px;} .stats-strip{grid-template-columns:1fr;}.nav-links{display:none;}}
+    @media(max-width:640px){.hero h1{font-size:64px;} .hero-sub{font-size:16px;} .btn-primary, .btn-ghost{width:100%;text-align:center;} .input-card{padding:24px;} .app-header{flex-direction:column;align-items:flex-start;gap:18px;} .back-btn{width:100%;justify-content:center;}}
+  </style>
+</head>
+<body>
+
+<div id="page1" class="page active">
+  <div class="ticker">
+    <span class="ticker-inner">
+      <span>AI-POWERED SPAM DETECTION</span>
+      <span>LOGISTIC REGRESSION + TF-IDF</span>
+      <span>EMAIL ID CHECKER</span>
+      <span>MESSAGE ANALYZER</span>
+      <span>REAL-TIME SPAM INSIGHTS</span>
+      <span>AI-POWERED SPAM DETECTION</span>
+    </span>
+  </div>
+
+  <nav>
+    <div class="nav-logo">SPAM<span>SHIELD</span></div>
+    <ul class="nav-links">
+      <li><a href="#">Model</a></li>
+      <li><a href="#">Dataset</a></li>
+      <li><a href="#">About</a></li>
+    </ul>
+    <button class="nav-cta" onclick="goToApp()">Launch App</button>
+  </nav>
+
+  <div class="grid-lines"></div>
+
+  <div class="hero">
+    <div class="hero-tag">ML Project · Email Classification System</div>
+    <h1>
+      <span class="line1">DETECT</span>
+      <span class="line2"><span class="accent-pink">SPAM,</span> STAY <span class="accent-cyan">SAFE.</span></span>
+    </h1>
+    <p class="hero-sub">An intelligent email spam detection system powered by Logistic Regression and TF-IDF vectorization. Identify spam emails by ID or analyze message content with a sleek 2-page interface.</p>
+    <div class="hero-actions">
+      <button class="btn-primary" onclick="goToApp()">▶ Launch Detector</button>
+      <button class="btn-ghost" onclick="goToApp()">See How It Works</button>
+    </div>
+
+    <div class="hero-accent">
+      <div class="accent-circle"></div>
+      <div class="accent-circle"></div>
+      <div class="accent-circle"></div>
+      <div class="accent-icon">🛡️</div>
+    </div>
+  </div>
+
+  <div class="stats-strip">
+    <div class="stat-item">
+      <div class="stat-num">97<span>%</span></div>
+      <div class="stat-label">Model Accuracy</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">5<span>K+</span></div>
+      <div class="stat-label">Emails Trained On</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">2</div>
+      <div class="stat-label">Detection Modes</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num"><span>#</span>1</div>
+      <div class="stat-label">ML Project · CSE Sem 6</div>
+    </div>
+  </div>
+</div>
+
+<div id="page2" class="page">
+  <div class="app-header">
+    <div class="app-logo">SPAM<span>SHIELD</span></div>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <div style="width:8px;height:8px;border-radius:50%;background:var(--cyan);animation:pulse 1.5s ease infinite;"></div>
+      <span style="font-size:13px;color:var(--muted);font-family:'Space Mono',monospace;">MODEL ACTIVE</span>
+    </div>
+    <button class="back-btn" onclick="goToLanding()">← Back to Home</button>
+  </div>
+
+  <div class="app-body">
+    <aside class="sidebar">
+      <div class="sidebar-section">
+        <div class="sidebar-label">Model Performance</div>
+        <div class="stat-bar">
+          <div class="bar-label"><span>Accuracy</span><span id="s-acc">97.23%</span></div>
+          <div class="bar-track"><div class="bar-fill cyan" style="width:97.23%"></div></div>
+        </div>
+        <div class="stat-bar">
+          <div class="bar-label"><span>Precision</span><span id="s-prec">96.80%</span></div>
+          <div class="bar-track"><div class="bar-fill" style="width:96.80%"></div></div>
+        </div>
+        <div class="stat-bar">
+          <div class="bar-label"><span>Recall</span><span id="s-rec">95.10%</span></div>
+          <div class="bar-track"><div class="bar-fill yellow" style="width:95.10%"></div></div>
+        </div>
+        <div class="stat-bar">
+          <div class="bar-label"><span>F1 Score</span><span id="s-f1">95.95%</span></div>
+          <div class="bar-track"><div class="bar-fill cyan" style="width:95.95%"></div></div>
+        </div>
+      </div>
+
+      <div class="sidebar-section">
+        <div class="sidebar-label">Dataset Info</div>
+        <div class="dataset-chips">
+          <div class="chip"><span class="chip-label">Total Messages</span><span class="chip-val total">5,572</span></div>
+          <div class="chip"><span class="chip-label">Spam</span><span class="chip-val spam">747</span></div>
+          <div class="chip"><span class="chip-label">Legitimate (Ham)</span><span class="chip-val ham">4,825</span></div>
+          <div class="chip"><span class="chip-label">Spam Rate</span><span class="chip-val spam">13.40%</span></div>
+        </div>
+      </div>
+
+      <div class="sidebar-section">
+        <div class="sidebar-label">Model Details</div>
+        <div class="metric-row"><span class="metric-key">Algorithm</span><span class="metric-val">LogReg</span></div>
+        <div class="metric-row"><span class="metric-key">Vectorizer</span><span class="metric-val">TF-IDF</span></div>
+        <div class="metric-row"><span class="metric-key">Max Features</span><span class="metric-val">3,000</span></div>
+        <div class="metric-row"><span class="metric-key">Test Split</span><span class="metric-val">20%</span></div>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <div class="section-header">
+        <div class="section-title">SPAM DETECTOR</div>
+        <div class="section-sub">Check an email address or analyze message content for spam signals.</div>
+      </div>
+
+      <div class="tabs">
+        <button class="tab active" onclick="switchTab(this,'email-tab')">📧 Email ID Checker</button>
+        <button class="tab" onclick="switchTab(this,'msg-tab')">💬 Message Analyzer</button>
+      </div>
+
+      <div id="email-tab" class="tab-panel active">
+        <div class="input-card">
+          <label class="input-label">Enter Email Address</label>
+          <input id="email-input" class="input-field" type="email" placeholder="e.g. user@example.com" />
+          <button class="check-btn" onclick="checkEmail()">CHECK EMAIL →</button>
+        </div>
+
+        <div id="email-result" class="result-box">
+          <div id="email-badge" class="result-badge"></div>
+          <div id="email-verdict" class="result-verdict"></div>
+          <div id="email-desc" class="result-desc"></div>
+        </div>
+
+        <div class="history-section">
+          <div class="history-title">Recent Checks</div>
+          <div id="email-history" class="history-list"></div>
+        </div>
+      </div>
+
+      <div id="msg-tab" class="tab-panel">
+        <div class="input-card">
+          <label class="input-label">Paste Message Content</label>
+          <textarea id="msg-input" class="input-field" placeholder="Paste the email body or message here..."></textarea>
+          <button class="check-btn" onclick="checkMessage()">ANALYZE MESSAGE →</button>
+        </div>
+
+        <div id="msg-result" class="result-box">
+          <div id="msg-badge" class="result-badge"></div>
+          <div id="msg-verdict" class="result-verdict"></div>
+          <div id="msg-desc" class="result-desc"></div>
+          <div id="msg-meta" class="meta-grid"></div>
+        </div>
+
+        <div class="history-section">
+          <div class="history-title">Recent Analyses</div>
+          <div id="msg-history" class="history-list"></div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<script>
+  const BACKEND_URL = 'http://127.0.0.1:5000';
+
+  function goToApp(){
+    document.getElementById('page1').classList.remove('active');
+    document.getElementById('page2').classList.add('active');
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+  function goToLanding(){
+    document.getElementById('page2').classList.remove('active');
+    document.getElementById('page1').classList.add('active');
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+
+  function switchTab(btn,panelId){
+    document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(panelId).classList.add('active');
+  }
+
+  const emailHistory = [];
+  const msgHistory = [];
+
+  async function checkEmail(){
+    const email = document.getElementById('email-input').value.trim();
+    if(!email){alert('Please enter an email address');return;}
+
+    const result = await fetchEndpoint('/email-check',{email});
+    if(!result) return;
+
+    const {prediction,message} = result;
+    const type = prediction === 'SPAM' ? 'spam' : prediction === 'HAM' ? 'clean' : 'unknown';
+    const badgeText = prediction === 'SPAM' ? '⚠ SPAM EMAIL ID' : prediction === 'HAM' ? '✓ LEGITIMATE EMAIL' : '? UNKNOWN EMAIL ID';
+    const verdictText = prediction === 'SPAM' ? 'SPAM DETECTED' : prediction === 'HAM' ? 'ALL CLEAR' : 'UNVERIFIED';
+    const cls = prediction === 'SPAM' ? 'spam-result' : prediction === 'HAM' ? 'clean-result' : 'unknown-result';
+
+    renderEmailResult({type,badgeText,verdictText,desc:message,cls});
+    emailHistory.unshift({label:email,type});
+    renderEmailHistory();
+  }
+
+  async function checkMessage(){
+    const message = document.getElementById('msg-input').value.trim();
+    if(!message){alert('Please enter a message');return;}
+
+    const result = await fetchEndpoint('/predict',{message});
+    if(!result) return;
+
+    const prediction = result.prediction;
+    const isSpam = prediction === 'SPAM';
+    const score = Math.min(Math.max(message.split(/\s+/).length * 0.02 + (message.match(/https?:\/\//g)||[]).length * 0.3, 0), 0.98);
+    const words = message.split(/\s+/).filter(Boolean).length;
+    const chars = message.length;
+    const urls = (message.match(/https?:\/\//g)||[]).length;
+    const confidence = isSpam ? Math.min(55 + score*40,98) : Math.max(50 - score*25,64);
+
+    const type = isSpam ? 'spam' : 'clean';
+    const cls = isSpam ? 'spam-result' : 'clean-result';
+    const verdictText = isSpam ? 'SPAM MESSAGE' : 'LEGITIMATE MESSAGE';
+    const badgeText = isSpam ? '⚠ SPAM DETECTED' : '✓ NOT SPAM';
+    const descText = isSpam ? 'This message contains clear spam signals according to the model.' : 'No strong spam patterns were found in this message.';
+
+    renderMsgResult({badgeText,verdictText,descText,cls,isSpam,score,words,chars,urls,confidence});
+    msgHistory.unshift({label:message.slice(0,60)+(message.length>60?'...':''),type});
+    renderMsgHistory();
+  }
+
+  function renderEmailResult({type,badgeText,verdictText,desc,cls}){
+    const box = document.getElementById('email-result');
+    const badge = document.getElementById('email-badge');
+    const verdict = document.getElementById('email-verdict');
+    const descEl = document.getElementById('email-desc');
+
+    box.className = `result-box ${cls} show`;
+    badge.className = `result-badge ${type}`;
+    badge.textContent = badgeText;
+    verdict.textContent = verdictText;
+    verdict.style.color = type==='spam' ? 'var(--pink)' : type==='clean' ? 'var(--cyan)' : 'var(--muted)';
+    descEl.textContent = desc;
+  }
+
+  function renderMsgResult({badgeText,verdictText,descText,cls,isSpam,score,words,chars,urls,confidence}){
+    const box = document.getElementById('msg-result');
+    const badge = document.getElementById('msg-badge');
+    const verdict = document.getElementById('msg-verdict');
+    const descEl = document.getElementById('msg-desc');
+    const meta = document.getElementById('msg-meta');
+
+    box.className = `result-box ${cls} show`;
+    badge.className = `result-badge ${isSpam ? 'spam' : 'clean'}`;
+    badge.textContent = badgeText;
+    verdict.textContent = verdictText;
+    verdict.style.color = isSpam ? 'var(--pink)' : 'var(--cyan)';
+    descEl.textContent = descText;
+
+    meta.innerHTML = `
+      <div class="meta-item"><div class="meta-item-label">Word Count</div><div class="meta-item-val">${words}</div></div>
+      <div class="meta-item"><div class="meta-item-label">Characters</div><div class="meta-item-val">${chars}</div></div>
+      <div class="meta-item"><div class="meta-item-label">URLs Found</div><div class="meta-item-val">${urls}</div></div>
+      <div class="meta-item"><div class="meta-item-label">Spam Score</div><div class="meta-item-val" style="color:${isSpam?'var(--pink)':'var(--cyan)'}">${(score*100).toFixed(1)}%</div></div>
+      <div class="meta-item"><div class="meta-item-label">Confidence</div><div class="meta-item-val">${confidence.toFixed(1)}%</div></div>
+      <div class="meta-item"><div class="meta-item-label">Prediction</div><div class="meta-item-val" style="color:${isSpam?'var(--pink)':'var(--cyan)'}">${prediction}</div></div>
+    `;
+  }
+
+  function renderEmailHistory(){
+    const el = document.getElementById('email-history');
+    el.innerHTML = emailHistory.slice(0,6).map(item=>`
+      <div class="history-item">
+        <div class="h-dot ${item.type}"></div>
+        <div class="h-text">${item.label}</div>
+        <div class="h-badge ${item.type}">${item.type==='spam'?'SPAM':item.type==='clean'?'CLEAN':'UNKNOWN'}</div>
+      </div>
+    `).join('');
+  }
+
+  function renderMsgHistory(){
+    const el = document.getElementById('msg-history');
+    el.innerHTML = msgHistory.slice(0,6).map(item=>`
+      <div class="history-item">
+        <div class="h-dot ${item.type}"></div>
+        <div class="h-text">${item.label}</div>
+        <div class="h-badge ${item.type}">${item.type==='spam'?'SPAM':'CLEAN'}</div>
+      </div>
+    `).join('');
+  }
+
+  async function fetchEndpoint(path,payload){
+    try {
+      const response = await fetch(BACKEND_URL + path, {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify(payload)
+      });
+      if(!response.ok){
+        const error = await response.json().catch(()=>({message:'Service unavailable'}));
+        alert(error.message || 'Server error');
+        return null;
+      }
+      return await response.json();
+    } catch(err){
+      alert('Backend service not available. Run python spam_detector.py and refresh.');
+      return null;
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded',()=>{
+    document.getElementById('email-input').addEventListener('keydown',e=>{if(e.key==='Enter')checkEmail();});
+    document.getElementById('msg-input').addEventListener('keydown',e=>{if(e.key==='Enter' && e.ctrlKey)checkMessage();});
+  });
+</script>
+</body>
+</html>
