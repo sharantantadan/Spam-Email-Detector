@@ -57,7 +57,8 @@
     .hero h1 .line2{display:block;}
     .hero h1 .accent-pink{color:var(--pink);}
     .hero h1 .accent-cyan{color:var(--cyan);}
-    .hero-sub{font-size:18px;color:var(--muted);max-width:620px;line-height:1.8;margin-bottom:48px;font-weight:300;}
+    .hero-sub{font-size:18px;color:var(--muted);max-width:620px;line-height:1.8;margin-bottom:14px;font-weight:300;}
+    .hero-author{font-size:14px;color:var(--muted);max-width:620px;line-height:1.7;margin-bottom:48px;}
 
     .hero-actions{display:flex;align-items:center;gap:22px;flex-wrap:wrap;}
     .btn-primary{background:var(--pink);color:#fff;padding:18px 44px;border:none;border-radius:6px;cursor:pointer;letter-spacing:1px;text-transform:uppercase;font-family:'Bebas Neue',sans-serif;font-size:20px;position:relative;overflow:hidden;transition:transform .3s,box-shadow .3s;}
@@ -121,6 +122,30 @@
     .tab-panel{display:none;}
     .tab-panel.active{display:block;}
     .input-card{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:32px;max-width:760px;}
+
+    /* HOW IT WORKS PAGE */
+    .how-body{padding:60px 40px 80px;min-height:calc(100vh - 68px);position:relative;}
+    .how-intro{max-width:720px;margin-bottom:40px;}
+    .how-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px;margin-bottom:36px;}
+    .how-card{position:relative;padding:28px 26px 24px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:24px;backdrop-filter:blur(12px);transition:transform .25s ease,box-shadow .25s ease;cursor:default;overflow:hidden;}
+    .how-card::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at top left, rgba(0,229,255,.12), transparent 38%);pointer-events:none;}
+    .how-card:hover{transform:translateY(-10px) scale(1.02);box-shadow:0 30px 80px rgba(0,229,255,.12);}
+    .how-label{font-family:'Space Mono',monospace;font-size:12px;color:var(--cyan);letter-spacing:2px;text-transform:uppercase;margin-bottom:18px;display:inline-block;}
+    .how-title{font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--text);margin-bottom:14px;}
+    .how-card p{font-size:14px;line-height:1.8;color:var(--muted);}
+    .how-notes{display:grid;grid-template-columns:1fr 1fr;gap:24px;}
+    .note-card{padding:24px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:18px;}
+    .note-head{font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--text);margin-bottom:10px;}
+    .note-card p{font-size:14px;color:var(--muted);line-height:1.75;}
+    .magic-cursor{position:fixed;top:0;left:0;width:26px;height:26px;border:1px solid rgba(255,45,120,.9);border-radius:50%;pointer-events:none;transform:translate(-50%,-50%);mix-blend-mode:screen;transition:transform .12s ease,background .12s ease;z-index:999;}
+    .how-body::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 20% 10%, rgba(0,229,255,.18), transparent 18%),radial-gradient(circle at 80% 20%, rgba(255,45,120,.12), transparent 18%),radial-gradient(circle at 50% 85%, rgba(245,230,66,.08), transparent 20%);pointer-events:none;}
+    .how-body::after{content:'';position:absolute;inset:0;background-image:linear-gradient(180deg,rgba(255,255,255,.02) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.02) 1px,transparent 1px);background-size:80px 80px;opacity:.4;pointer-events:none;}
+    .how-intro .section-title{font-size:52px;}
+    .how-intro .section-sub{font-size:16px;max-width:640px;}
+
+    @media(max-width:1100px){.how-grid{grid-template-columns:1fr;} .how-notes{grid-template-columns:1fr;} }
+    @media(max-width:860px){.hero h1{font-size:70px;} .hero-sub{font-size:16px;} .hero-author{font-size:13px;} }
+    @media(max-width:640px){.hero h1{font-size:58px;} .hero-actions{flex-direction:column;} .nav-links{display:none;} .app-body{grid-template-columns:1fr;} .sidebar{order:2;} .main-content{padding:24px;} .how-body{padding:40px 20px 60px;} .how-intro .section-title{font-size:40px;} }
     .input-label{font-family:'Space Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:14px;display:block;}
     .input-field{width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:18px 20px;border-radius:12px;outline:none;transition:border-color .2s;}
     .input-field:focus{border-color:var(--pink);}
@@ -196,9 +221,10 @@
       <span class="line2"><span class="accent-pink">SPAM,</span> STAY <span class="accent-cyan">SAFE.</span></span>
     </h1>
     <p class="hero-sub">An intelligent email spam detection system powered by Logistic Regression and TF-IDF vectorization. Identify spam emails by ID or analyze message content with a sleek 2-page interface.</p>
+      <p class="hero-author">This project was created by<br>Sharan Nanda Kumar - 1AT23IS151<br>Tanisha M S - 1AT23IS172<br>Rakshitha GL - 1AT23IS131</p>
     <div class="hero-actions">
       <button class="btn-primary" onclick="goToApp()">▶ Launch Detector</button>
-      <button class="btn-ghost" onclick="goToApp()">See How It Works</button>
+      <button class="btn-ghost" onclick="window.location.href='how_it_works.html'">See How It Works</button>
     </div>
 
     <div class="hero-accent">
@@ -224,7 +250,7 @@
     </div>
     <div class="stat-item">
       <div class="stat-num"><span>#</span>1</div>
-      <div class="stat-label">ML Project · CSE Sem 6</div>
+      <div class="stat-label">ML Project · ISE Sem 6</div>
     </div>
   </div>
 </div>
@@ -480,9 +506,39 @@
     }
   }
 
+  function initHowPageEffects(){
+    const cursor = document.querySelector('.magic-cursor');
+    const cards = document.querySelectorAll('.hover-card');
+    const howBody = document.querySelector('.how-body');
+
+    if(!howBody || !cursor) return;
+
+    howBody.addEventListener('mousemove', e => {
+      const rect = howBody.getBoundingClientRect();
+      const mouseX = e.clientX - rect.left;
+      const mouseY = e.clientY - rect.top;
+
+      cursor.style.transform = `translate(${e.clientX}px, ${e.clientY}px)`;
+      cursor.style.background = 'rgba(255,45,120,.2)';
+
+      cards.forEach(card => {
+        const speed = Number(card.dataset.speed) || 10;
+        const x = (mouseX - rect.width / 2) / speed;
+        const y = (mouseY - rect.height / 2) / speed;
+        card.style.transform = `translate3d(${x}px, ${y}px, 0)`;
+      });
+    });
+
+    howBody.addEventListener('mouseleave', ()=>{
+      cards.forEach(card => card.style.transform = 'translate3d(0,0,0)');
+      cursor.style.background = 'rgba(255,45,120,.1)';
+    });
+  }
+
   document.addEventListener('DOMContentLoaded',()=>{
     document.getElementById('email-input').addEventListener('keydown',e=>{if(e.key==='Enter')checkEmail();});
     document.getElementById('msg-input').addEventListener('keydown',e=>{if(e.key==='Enter' && e.ctrlKey)checkMessage();});
+    initHowPageEffects();
   });
 </script>
 </body>
