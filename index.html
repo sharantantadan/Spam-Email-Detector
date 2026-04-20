@@ -65,8 +65,55 @@
     .btn-primary::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.18),transparent);transform:translateX(-100%);transition:transform .45s;}
     .btn-primary:hover::after{transform:translateX(100%);}
     .btn-primary:hover{transform:translateY(-2px);box-shadow:0 18px 50px rgba(255,45,120,.25);}
-    .btn-ghost{background:transparent;color:var(--text);padding:18px 40px;border:1px solid var(--border);border-radius:6px;cursor:pointer;letter-spacing:1px;text-transform:uppercase;font-family:'Bebas Neue',sans-serif;font-size:20px;transition:border-color .3s,background .3s;}
-    .btn-ghost:hover{border-color:var(--muted);background:rgba(255,255,255,.03);}
+    
+    /* ENHANCED: Space-themed btn-ghost with interactive mouse tracking */
+    .btn-ghost{
+      background: radial-gradient(circle at var(--x, 50%) var(--y, 50%), rgba(255, 45, 120, 0.15) 0%, var(--bg2) 50%);
+      color: var(--text);
+      padding: 18px 44px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 100px;
+      cursor: pointer;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 20px;
+      transition: transform 0.2s cubic-bezier(0.23, 1, 0.32, 1), border-color 0.4s ease, box-shadow 0.4s ease;
+      position: relative;
+      overflow: hidden;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1;
+    }
+
+    .btn-ghost::before {
+      content: '';
+      position: absolute;
+      inset: -1px;
+      background: linear-gradient(90deg, transparent, rgba(255, 45, 120, 0.3), transparent);
+      z-index: -1;
+      opacity: 0;
+      transition: opacity 0.4s ease;
+    }
+
+    .btn-ghost:hover{
+      border-color: var(--pink);
+      transform: translateY(-4px) scale(1.03);
+      box-shadow: 0 15px 40px rgba(255, 45, 120, 0.2), 0 0 10px rgba(255, 45, 120, 0.1);
+      color: #fff;
+      background: radial-gradient(circle at var(--x, 50%) var(--y, 50%), rgba(255, 45, 120, 0.25) 0%, var(--bg3) 60%);
+    }
+
+    .btn-ghost:hover::before {
+      opacity: 1;
+      animation: shine-border 2s infinite linear;
+    }
+
+    @keyframes shine-border {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
 
     .stats-strip{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;border-top:1px solid var(--border);position:relative;z-index:5;}
     .stat-item{padding:32px 60px;background:rgba(255,255,255,.01);border-right:1px solid var(--border);}
@@ -224,7 +271,7 @@
       <p class="hero-author">This project was created by<br>Sharan Nanda Kumar - 1AT23IS151<br>Tanisha M S - 1AT23IS172<br>Rakshitha GL - 1AT23IS131</p>
     <div class="hero-actions">
       <button class="btn-primary" onclick="goToApp()">▶ Launch Detector</button>
-      <button class="btn-ghost" onclick="window.location.href='how_it_works.html'">See How It Works</button>
+      <button id="how-it-works-btn" class="btn-ghost" onclick="window.location.href='how_it_works.html'">See How It Works</button>
     </div>
 
     <div class="hero-accent">
@@ -422,7 +469,7 @@
     const badgeText = isSpam ? '⚠ SPAM DETECTED' : '✓ NOT SPAM';
     const descText = isSpam ? 'This message contains clear spam signals according to the model.' : 'No strong spam patterns were found in this message.';
 
-    renderMsgResult({badgeText,verdictText,descText,cls,isSpam,score,words,chars,urls,confidence});
+    renderMsgResult({badgeText,verdictText,descText,cls,isSpam,score,words,chars,urls,confidence,prediction});
     msgHistory.unshift({label:message.slice(0,60)+(message.length>60?'...':''),type});
     renderMsgHistory();
   }
@@ -441,7 +488,7 @@
     descEl.textContent = desc;
   }
 
-  function renderMsgResult({badgeText,verdictText,descText,cls,isSpam,score,words,chars,urls,confidence}){
+  function renderMsgResult({badgeText,verdictText,descText,cls,isSpam,score,words,chars,urls,confidence,prediction}){
     const box = document.getElementById('msg-result');
     const badge = document.getElementById('msg-badge');
     const verdict = document.getElementById('msg-verdict');
@@ -535,10 +582,23 @@
     });
   }
 
+  function initGhostButtonEffect() {
+    const btn = document.getElementById('how-it-works-btn');
+    if(!btn) return;
+    btn.addEventListener('mousemove', (e) => {
+      const rect = btn.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      btn.style.setProperty('--x', `${x}px`);
+      btn.style.setProperty('--y', `${y}px`);
+    });
+  }
+
   document.addEventListener('DOMContentLoaded',()=>{
     document.getElementById('email-input').addEventListener('keydown',e=>{if(e.key==='Enter')checkEmail();});
     document.getElementById('msg-input').addEventListener('keydown',e=>{if(e.key==='Enter' && e.ctrlKey)checkMessage();});
     initHowPageEffects();
+    initGhostButtonEffect();
   });
 </script>
 </body>

@@ -1,10 +1,11 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
 import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
+import os
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder=os.path.dirname(__file__))
 CORS(app)
 
 # Load dataset
@@ -37,7 +38,12 @@ print(f"Loaded {len(email_lookup)} emails from dataset")
 
 @app.route("/")
 def home():
-    return "Backend is running"
+    return render_template("index.html")
+
+@app.route("/how_it_works.html")
+@app.route("/how_it_works")
+def how_it_works():
+    return render_template("how_it_works.html")
 
 @app.route("/predict", methods=["POST"])
 def predict():
