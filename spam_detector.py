@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, jsonify, render_template, send_file
 from flask_cors import CORS
 import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -9,7 +9,7 @@ app = Flask(__name__, template_folder=os.path.dirname(__file__))
 CORS(app)
 
 # Load dataset
-df = pd.read_csv("spam_with_email_ids.csv")
+df = pd.read_csv("spam_with_email_ids.csv", encoding='latin-1')
 
 TEXT_COL = "Message"
 LABEL_COL = "Category"
@@ -84,6 +84,9 @@ def email_check():
         })
 
 
+@app.route("/dataset")
+def dataset():
+    return send_file("spam_with_email_ids.csv", as_attachment=True, download_name="spam_with_email_ids.csv")
 
 
 if __name__ == "__main__":
